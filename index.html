@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fall River Cares - Christmas Gift Drive</title>
+<style>
+  :root { --green:#1d4d2b; --red:#a63232; --gold:#c9a227; --cream:#faf7f0; --ink:#2b2b2b; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family: Georgia, 'Times New Roman', serif; background:var(--cream); color:var(--ink); line-height:1.55; }
+  header { background:linear-gradient(135deg, var(--green), #143a20); color:#fff; text-align:center; padding:2.2rem 1rem 1.8rem; }
+  header h1 { font-size:1.7rem; letter-spacing:.5px; }
+  header .sub { color:var(--gold); font-style:italic; margin-top:.4rem; }
+  .wrap { max-width:760px; margin:0 auto; padding:1.2rem 1rem 3rem; }
+  .card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); padding:1.2rem; margin-bottom:1.1rem; }
+  h2 { color:var(--green); font-size:1.25rem; margin-bottom:.6rem; }
+  .steps { display:grid; gap:.7rem; margin-top:.6rem; }
+  .step { display:flex; gap:.7rem; align-items:flex-start; }
+  .step .n { background:var(--red); color:#fff; border-radius:50%; min-width:1.7rem; height:1.7rem; display:flex; align-items:center; justify-content:center; font-weight:bold; }
+  .progress { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); padding:1rem 1.2rem; margin-bottom:1.1rem; text-align:center; }
+  .bar { height:12px; background:#e8e2d4; border-radius:6px; overflow:hidden; margin-top:.5rem; }
+  .bar > div { height:100%; background:linear-gradient(90deg, var(--green), #2f7a44); width:0%; transition:width .6s; }
+  .fam { border-left:5px solid var(--red); }
+  .fam.claimed { border-left-color:#bbb; opacity:.75; }
+  .fam h3 { font-size:1.15rem; color:var(--green); }
+  .fam .meta { color:#666; font-size:.95rem; margin:.25rem 0; }
+  .fam .ideas { font-style:italic; margin:.4rem 0 .8rem; }
+  .btn { display:inline-block; background:var(--red); color:#fff; border:none; border-radius:8px; padding:.7rem 1.4rem; font-size:1rem; cursor:pointer; font-family:inherit; text-decoration:none; }
+  .btn:hover { background:#8c2a2a; }
+  .btn.green { background:var(--green); }
+  .btn.green:hover { background:#163d22; }
+  .btn:disabled { background:#999; cursor:default; }
+  .tag { display:inline-block; font-size:.8rem; padding:.15rem .6rem; border-radius:20px; margin-left:.5rem; vertical-align:middle; }
+  .tag.open { background:#e2f0e5; color:var(--green); }
+  .tag.done { background:#eee; color:#777; }
+  .gift { border-left:5px solid var(--gold); }
+  .drop { border-left:5px solid var(--green); }
+  footer { text-align:center; color:#888; font-size:.85rem; padding:1.5rem 1rem; }
+  /* modal */
+  .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:10; align-items:center; justify-content:center; padding:1rem; }
+  .modal-bg.show { display:flex; }
+  .modal { background:#fff; border-radius:12px; padding:1.4rem; max-width:420px; width:100%; max-height:90vh; overflow:auto; }
+  .modal h3 { color:var(--green); margin-bottom:.6rem; }
+  .modal label { display:block; font-size:.9rem; margin:.7rem 0 .2rem; }
+  .modal input { width:100%; padding:.6rem; border:1px solid #ccc; border-radius:6px; font-size:1rem; font-family:inherit; }
+  .modal .row { display:flex; gap:.6rem; margin-top:1rem; }
+  .modal .note { font-size:.85rem; color:#666; margin-top:.6rem; }
+  .err { color:var(--red); font-size:.9rem; margin-top:.5rem; display:none; }
+  .loading { text-align:center; padding:2rem; color:#777; font-style:italic; }
+  /* signup form */
+  .field label { display:block; font-size:.92rem; margin:.75rem 0 .2rem; font-weight:bold; color:var(--green); }
+  .field input, .field select, .field textarea { width:100%; padding:.6rem; border:1px solid #ccc; border-radius:6px; font-size:1rem; font-family:inherit; background:#fff; }
+  .field textarea { min-height:4.2rem; resize:vertical; }
+  .field .hint { font-size:.83rem; color:#666; margin-top:.15rem; }
+  .childblock { border:1px solid #e0d9c6; border-radius:8px; padding:.8rem; margin-top:.7rem; background:#fffdf8; }
+  .childblock h4 { color:var(--green); margin-bottom:.2rem; }
+  .childblock label { font-size:.88rem; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .checkline { display:flex; gap:.5rem; align-items:flex-start; margin-top:.9rem; font-size:.92rem; font-weight:normal !important; color:var(--ink) !important; }
+  .checkline input { width:auto; margin-top:.3rem; }
+  .wishbox { background:#f4f8f4; border:1px solid #cfe0cf; border-radius:8px; padding:.9rem; margin:.8rem 0; white-space:pre-wrap; text-align:left; font-size:.95rem; }
+  /* floating help button */
+  #helpFab { position:fixed; right:1rem; bottom:1rem; z-index:50; background:var(--green); color:#fff; border:none; border-radius:999px; padding:.85rem 1.25rem; font-size:1rem; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+  #helpFab:hover { background:#163d22; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎄 Fall River Cares</h1>
+  <div class="sub">Christmas Gift Drive — neighbors helping neighbors</div>
+</header>
+<div style="text-align:center;padding:.9rem 1rem 0">
+  <a href="#needhelp" class="btn green">🎄 Need help this Christmas? Sign up here</a>
+</div>
+<div id="helped" style="display:none;text-align:center;padding:.7rem 1rem 0">
+  <span style="display:inline-block;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:999px;padding:.45rem 1.2rem;font-weight:700;color:#2e7d32">🎄 <span id="helpedText"></span></span>
+</div>
+<div class="wrap">
+
+  <div class="card">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><strong>Pick a family</strong> below that fits what you'd like to give.</div></div>
+      <div class="step"><div class="n">2</div><div><strong>Tap Adopt</strong> and leave your name and email. You'll see the full wish list right away.</div></div>
+      <div class="step"><div class="n">3</div><div><strong>Drop off</strong> your wrapped gifts at our location below. Families pick up from there.</div></div>
+    </div>
+    <p style="margin-top:.8rem"><em>Gift ideas are just suggestions to help you shop — give what fits your budget and your heart.</em></p>
+  </div>
+
+  <div class="progress" id="progress" style="display:none">
+    <div><strong id="ptext"></strong></div>
+    <div class="bar"><div id="pfill"></div></div>
+  </div>
+
+  <div id="families"><div class="loading">Loading families…</div></div>
+
+  <div class="card gift">
+    <h2>🎁 Rather donate a gift card?</h2>
+    <p>We use donated gift cards to buy gifts for families — especially families still waiting to be adopted. Drop the physical card off at our location below.</p>
+    <p style="margin-top:.8rem"><button class="btn green" onclick="openGiftCard()">Pledge a gift card</button></p>
+  </div>
+
+  <div class="card drop">
+    <h2>📍 Drop-off</h2>
+    <p id="dropinfo">Loading…</p>
+  </div>
+
+  <div class="card" id="needhelp">
+    <h2>🎄 Need help this Christmas?</h2>
+    <p>Fill this out by <strong>November 30th</strong>. Everything you share stays private — only our small team sees it, never posted publicly.</p>
+    <p>Prefer email? Write to us at <a id="helpEmail" href="mailto:Fallrivercaresinc@gmail.com">Fallrivercaresinc@gmail.com</a> and we'll help you sign up.</p>
+    <div class="field">
+      <label>Your first name *</label><input id="fName" autocomplete="given-name">
+      <label>Best phone number to reach you *</label><input id="fPhone" type="tel" autocomplete="tel">
+      <label>Email (optional)</label><input id="fEmail" type="email" autocomplete="email">
+      <label>What town do you live in? *</label>
+      <input id="fTown" type="text" autocomplete="address-level2" placeholder="Your town">
+      <div class="hint">Pickup will be at the RMV parking lot, 1794 N Main St, Fall River, MA. You are welcome to sign up from any town as long as you can get there for pickup.</div>
+      <label>How many children are you signing up? *</label>
+      <select id="fKids" onchange="renderKidBlocks()">
+        <option value="">Choose…</option>
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+      </select>
+      <div class="hint">More than 4 children? Email us at Fallrivercaresinc@gmail.com and we'll sign you up directly.</div>
+      <div id="kidBlocks"></div>
+      <label>Anything else we should know? (optional)</label><textarea id="fNotes"></textarea>
+      <label>How would you like to receive the gifts? *</label>
+      <select id="fReceive">
+        <option value="">Choose…</option>
+        <option value="pickup">I will pick up at the drop-off location (preferred)</option>
+        <option value="delivery">I need delivery — I do not have reliable transportation</option>
+      </select>
+      <div class="hint">Pickup is preferred — it helps us help more families.</div>
+      <label>Can we take photos when you receive your gifts? *</label>
+      <select id="fPhoto">
+        <option value="">Choose…</option>
+        <option>Yes, photos are fine</option>
+        <option>Yes, but please blur faces</option>
+        <option>No photos of my family, please</option>
+      </select>
+      <div class="hint">If you agree to photos, they will be posted on the Fall River Cares Facebook page to show donors their gifts arrived. We always photograph the gifts themselves as a delivery record — no people in those shots.</div>
+      <label class="checkline"><input type="checkbox" id="fBagAck"><span>I understand you will take pictures of at least the gift bags at drop-off. *</span></label>
+      <div class="err" id="fErr"></div>
+      <p style="margin-top:1rem"><button class="btn green" id="fSubmit" onclick="sendApplication()">Submit application</button></p>
+      <div id="fDone" style="display:none; margin-top:1rem;"></div>
+    </div>
+  </div>
+
+</div>
+<footer>Fall River Cares &bull; Supporting children and families across the Greater Fall River area</footer>
+
+<div class="modal-bg" id="adoptModal">
+  <div class="modal">
+    <h3 id="adoptTitle">Adopt this family</h3>
+    <p class="note">You'll see the full wish list right after you adopt. Your information stays private.</p>
+    <label>Your name</label><input id="aName" autocomplete="name">
+    <label>Email</label><input id="aEmail" type="email" autocomplete="email">
+    <label>Phone (optional)</label><input id="aPhone" type="tel" autocomplete="tel">
+    <div class="err" id="aErr"></div>
+    <div class="row">
+      <button class="btn" id="aSubmit" onclick="sendClaim()">Adopt Family <span id="aNum"></span></button>
+      <button class="btn" style="background:#777" onclick="closeModals()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="doneModal">
+  <div class="modal" style="text-align:center">
+    <h3>🎄 Thank you!</h3>
+    <p id="doneText"></p>
+    <p style="margin-top:1rem"><button class="btn green" onclick="closeModals()">Done</button></p>
+  </div>
+</div>
+
+<div class="modal-bg" id="giftModal">
+  <div class="modal">
+    <h3>Pledge a gift card</h3>
+    <p class="note">We use donated cards to shop for families still waiting to be adopted.</p>
+    <label>Your name</label><input id="gName" autocomplete="name">
+    <label>Email</label><input id="gEmail" type="email" autocomplete="email">
+    <label>Store</label><input id="gStore" placeholder="e.g. Target, Walmart, Amazon">
+    <label>Amount ($)</label><input id="gAmount" inputmode="decimal" placeholder="e.g. 50">
+    <div class="err" id="gErr"></div>
+    <div class="row">
+      <button class="btn green" id="gSubmit" onclick="sendGiftCard()">Pledge card</button>
+      <button class="btn" style="background:#777" onclick="closeModals()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var claimFamily = null;
+var contactEmail = 'Fallrivercaresinc@gmail.com';
+
+/* Calls to the Apps Script backend now that this page is hosted off Google:
+   JSONP for reads and small writes, a hidden form + iframe for signup. */
+var API_BASE = 'https://script.google.com/macros/s/AKfycbyhQ--cmQfRr1x6qwefvFEg3PPQdKz6hU4xb8h9CciDuruKaBXyQTyOxia9QUN-rFsF/exec';
+var __frc_cb_n = 1;
+function apiGet(action, params, onOk, onFail){
+  var name = '__frc_cb_' + (__frc_cb_n++);
+  var s = document.createElement('script');
+  function cleanup(){
+    clearTimeout(timer);
+    if(s.parentNode) s.parentNode.removeChild(s);
+    try { delete window[name]; } catch(e){ window[name] = undefined; }
+  }
+  var timer = setTimeout(function(){ cleanup(); if(onFail) onFail(); }, 25000);
+  window[name] = function(r){ cleanup(); if(onOk) onOk(r); };
+  var qs = ['action=' + encodeURIComponent(action)];
+  Object.keys(params || {}).forEach(function(k){
+    qs.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+  });
+  qs.push('callback=' + encodeURIComponent(name));
+  s.onerror = function(){ cleanup(); if(onFail) onFail(); };
+  s.src = API_BASE + '?' + qs.join('&');
+  document.body.appendChild(s);
+}
+function apiPostSignup(data, onOk, onFail){
+  var done = false;
+  var frame = document.createElement('iframe');
+  frame.name = 'frc_post_frame';
+  frame.style.display = 'none';
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = API_BASE;
+  form.target = 'frc_post_frame';
+  form.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;';
+  function add(n, v){
+    var inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = n; inp.value = (v == null ? '' : String(v));
+    form.appendChild(inp);
+  }
+  add('action', 'signup');
+  add('firstName', data.firstName);
+  add('phone', data.phone);
+  add('email', data.email);
+  add('town', data.town);
+  add('notes', data.notes);
+  add('receive', data.receive);
+  add('photo', data.photo);
+  add('bagAck', data.bagAck ? 'true' : 'false');
+  add('childrenJson', JSON.stringify(data.children || []));
+  var timer = setTimeout(function(){ finish(false); }, 30000);
+  function onMsg(ev){
+    var origin = (ev && ev.origin) ? String(ev.origin) : '';
+    if(origin.indexOf('google') === -1) return;
+    var d = ev.data;
+    if(!d || typeof d !== 'object' || d.frc !== 'signup') return;
+    finish(!!d.ok);
+  }
+  function finish(okFlag){
+    if(done) return;
+    done = true;
+    clearTimeout(timer);
+    window.removeEventListener('message', onMsg);
+    if(form.parentNode) form.parentNode.removeChild(form);
+    if(frame.parentNode) frame.parentNode.removeChild(frame);
+    if(okFlag){ if(onOk) onOk({ ok: true }); }
+    else if(onFail) onFail();
+  }
+  window.addEventListener('message', onMsg);
+  document.body.appendChild(frame);
+  document.body.appendChild(form);
+  form.submit();
+}
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function ageList(s){
+  return String(s == null ? '' : s).split(',').map(function(x){ return x.trim(); }).filter(function(x){ return x !== ''; });
+}
+function joinAges(a){
+  if(a.length <= 2) return a.join(' and ');
+  return a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+}
+function kidLine(f){
+  var c = parseInt(f.children, 10);
+  var base = (!isNaN(c) ? c : f.children) + ((c === 1) ? ' child' : ' children');
+  var parts = [];
+  var boys = ageList(f.boyAges), girls = ageList(f.girlAges);
+  if(boys.length) parts.push((boys.length === 1 ? 'Boy' : 'Boys') + ' age' + (boys.length === 1 ? '' : 's') + ' ' + joinAges(boys));
+  if(girls.length) parts.push((girls.length === 1 ? 'Girl' : 'Girls') + ' age' + (girls.length === 1 ? '' : 's') + ' ' + joinAges(girls));
+  if(parts.length) base += ' \u2022 ' + parts.join(', ');
+  return base;
+}
+function load(){
+  apiGet('families', {}, render, function(){
+    document.getElementById('families').innerHTML = '<div class="loading">Could not load families. Please try again later.</div>';
+  });
+}
+
+function render(d){
+  var box = document.getElementById('families');
+  var fams = d.families || [];
+  var helped = d.deliveredCount || 0;
+  if (helped > 0) {
+    document.getElementById('helped').style.display = 'block';
+    document.getElementById('helpedText').textContent = helped + (helped === 1 ? ' family helped!' : ' families helped!');
+  } else {
+    document.getElementById('helped').style.display = 'none';
+  }
+  if(!fams.length){
+    var doneMsg = (d.total > 0)
+      ? '<h2>All families have been helped! 🎄</h2><p>Every family on our list has received their gifts. Thank you, Fall River!</p>'
+      : '<h2>Families coming soon</h2><p>Check back shortly — families are being added.</p>';
+    box.innerHTML = '<div class="card">' + doneMsg + '</div>';
+  } else {
+    var html = '';
+    var adopted = 0;
+    fams.forEach(function(f){
+      var isClaimed = String(f.status).toLowerCase() !== 'available';
+      if(isClaimed) adopted++;
+      html += '<div class="card fam' + (isClaimed?' claimed':'') + '">'
+        + '<h3>Family #' + esc(f.number)
+        + (isClaimed ? '<span class="tag done">Adopted</span>' : '<span class="tag open">Available</span>') + '</h3>'
+        + '<div class="meta">' + kidLine(f) + '</div>'
+        + (isClaimed ? '' : '<button class="btn" onclick="openAdopt(\'' + esc(f.number).replace(/'/g,"\\'") + '\')">Adopt this family</button>')
+        + '</div>';
+    });
+    box.innerHTML = html;
+    var p = document.getElementById('progress');
+    p.style.display = 'block';
+    var total = (d.total === undefined ? fams.length : d.total);
+    var adoptedTotal = (d.adoptedCount === undefined ? adopted : d.adoptedCount);
+    document.getElementById('ptext').textContent = adoptedTotal + ' of ' + total + ' families adopted';
+    document.getElementById('pfill').style.width = (fams.length ? Math.round(adopted/fams.length*100) : 0) + '%';
+  }
+  var s = d.settings || {};
+  if(s.contact_email) contactEmail = s.contact_email;
+  var he = document.getElementById('helpEmail');
+  if (he) { he.href = 'mailto:' + contactEmail; he.textContent = contactEmail; }
+  var di = '<strong>' + esc(s.dropoff_name || 'Drop-off location') + '</strong>';
+  if(s.dropoff_address) di += '<br>' + esc(s.dropoff_address);
+  else di += '<br><em>Address announced soon</em>';
+  if(s.hours) di += '<br>' + esc(s.hours);
+  document.getElementById('dropinfo').innerHTML = di;
+}
+
+function openAdopt(num){
+  claimFamily = num;
+  document.getElementById('aNum').textContent = '#' + num;
+  document.getElementById('aErr').style.display = 'none';
+  document.getElementById('adoptModal').classList.add('show');
+}
+function openGiftCard(){
+  document.getElementById('gErr').style.display = 'none';
+  document.getElementById('giftModal').classList.add('show');
+}
+function closeModals(){
+  document.querySelectorAll('.modal-bg').forEach(function(m){ m.classList.remove('show'); });
+}
+function validEmail(e){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
+
+function sendClaim(){
+  var name = document.getElementById('aName').value.trim();
+  var email = document.getElementById('aEmail').value.trim();
+  var phone = document.getElementById('aPhone').value.trim();
+  var err = document.getElementById('aErr');
+  if(!name){ err.textContent = 'Please enter your name.'; err.style.display='block'; return; }
+  if(!validEmail(email)){ err.textContent = 'Please enter a valid email.'; err.style.display='block'; return; }
+  err.style.display='none';
+  var btn = document.getElementById('aSubmit'); btn.disabled = true; btn.textContent = 'Sending…';
+  apiGet('claim', {familyNumber: claimFamily, name: name, email: email, phone: phone}, function(r){
+    btn.disabled = false; btn.textContent = 'Adopt';
+    closeModals();
+    if(r.ok){
+      var html = '<p><strong>Family #' + esc(claimFamily) + ' is yours!</strong></p>';
+      if(r.wishList){
+        html += '<p style="margin-top:.6rem">Here is their wish list:</p>'
+          + '<div class="wishbox" id="wishText">' + esc(r.wishList) + '</div>'
+          + '<p><button class="btn green" id="copyBtn" onclick="copyWish()">Copy wish list</button></p>';
+      } else {
+        html += '<p style="margin-top:.6rem">Our coordinator will be in touch with the full wish list shortly.</p>';
+      }
+      html += '<p style="margin-top:.8rem">Done shopping? Email us at <a href="mailto:' + esc(contactEmail) + '">' + esc(contactEmail) + '</a> to set up your drop-off time.</p>';
+      document.getElementById('doneText').innerHTML = html;
+      document.getElementById('doneModal').classList.add('show');
+      load();
+    } else if(r.error === 'taken'){
+      document.getElementById('doneText').textContent = 'Sorry — that family was just adopted by someone else. Please pick another family.';
+      document.getElementById('doneModal').classList.add('show');
+      load();
+    } else {
+      err.textContent = 'Something went wrong. Please try again.'; err.style.display='block';
+    }
+  }, function(){
+    btn.disabled = false; btn.textContent = 'Adopt';
+    err.textContent = 'Something went wrong. Please try again.';
+    err.style.display = 'block';
+  });
+}
+
+function copyWish(){
+  var t = document.getElementById('wishText').innerText;
+  var done = function(){ document.getElementById('copyBtn').textContent = 'Copied!'; };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done, function(){ fallbackCopy(t); done(); });
+  } else { fallbackCopy(t); done(); }
+}
+function fallbackCopy(t){
+  var ta = document.createElement('textarea');
+  ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+}
+
+function renderKidBlocks(){
+  var n = parseInt(document.getElementById('fKids').value, 10) || 0;
+  var box = document.getElementById('kidBlocks');
+  var html = '';
+  for(var i = 1; i <= n; i++){
+    html += '<div class="childblock"><h4>Child ' + i + '</h4>'
+      + '<div class="grid2"><div><label>Boy or Girl *</label><select id="kGender' + i + '"><option value="">Choose…</option><option>Boy</option><option>Girl</option></select></div>'
+      + '<div><label>Age *</label><input id="kAge' + i + '" inputmode="numeric" placeholder="e.g. 7"></div></div>'
+      + '<div class="grid2"><div><label>Clothing size</label><input id="kCloth' + i + '" placeholder="e.g. 8"></div>'
+      + '<div><label>Shoe size</label><input id="kShoe' + i + '" placeholder="e.g. 2"></div></div>'
+      + '<label>Favorite color (optional)</label><input id="kColor' + i + '">'
+      + '<label>Gift ideas *</label><textarea id="kIdeas' + i + '" placeholder="2–3 ideas"></textarea>'
+      + '<div class="hint">2–3 ideas per child, please — and keep them modest (toys, books, clothes). No big-ticket electronics, please.</div>'
+      + '</div>';
+  }
+  box.innerHTML = html;
+}
+
+function appErr(m){
+  var e = document.getElementById('fErr');
+  e.textContent = m; e.style.display = 'block';
+  document.getElementById('needhelp').scrollIntoView();
+}
+
+function sendApplication(){
+  function val(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  var firstName = val('fName'), phone = val('fPhone'), email = val('fEmail'), town = val('fTown');
+  var n = parseInt(document.getElementById('fKids').value, 10) || 0;
+  if(!firstName){ appErr('Please enter your first name.'); return; }
+  if(!phone){ appErr('Please enter your phone number.'); return; }
+  if(email && !validEmail(email)){ appErr('Please enter a valid email, or leave it blank.'); return; }
+  if(!town){ appErr('Please enter your town.'); return; }
+  if(!n){ appErr('Please choose how many children you are signing up.'); return; }
+  var kids = [];
+  for(var i = 1; i <= n; i++){
+    var g = val('kGender' + i), a = val('kAge' + i), ideas = val('kIdeas' + i);
+    if(!g || !a){ appErr('Please enter boy/girl and age for child ' + i + '.'); return; }
+    if(!ideas){ appErr('Please enter gift ideas for child ' + i + '.'); return; }
+    kids.push({ gender: g, age: a, clothing: val('kCloth' + i), shoe: val('kShoe' + i), color: val('kColor' + i), ideas: ideas });
+  }
+  var receive = document.getElementById('fReceive').value;
+  var photo = document.getElementById('fPhoto').value;
+  if(!receive){ appErr('Please choose how you would like to receive the gifts.'); return; }
+  if(!photo){ appErr('Please answer the photo question.'); return; }
+  if(!document.getElementById('fBagAck').checked){ appErr('Please check the box about drop-off photos.'); return; }
+  document.getElementById('fErr').style.display = 'none';
+  var btn = document.getElementById('fSubmit'); btn.disabled = true; btn.textContent = 'Sending…';
+  var onSignOk = function(r){
+    btn.disabled = false; btn.textContent = 'Submit application';
+    if(r && r.ok){
+      var d = document.getElementById('fDone');
+      d.innerHTML = '<strong>Thank you!</strong> Your application was received. Our coordinator will review it and be in touch.';
+      d.style.display = 'block';
+      ['fName','fPhone','fEmail','fNotes'].forEach(function(id){ document.getElementById(id).value = ''; });
+      document.getElementById('fTown').value = '';
+      document.getElementById('fKids').value = '';
+      document.getElementById('kidBlocks').innerHTML = '';
+      document.getElementById('fReceive').value = '';
+      document.getElementById('fPhoto').value = '';
+      document.getElementById('fBagAck').checked = false;
+      d.scrollIntoView();
+    } else {
+      appErr('Something went wrong. Please try again.');
+    }
+  };
+  var onSignFail = function(){
+    btn.disabled = false; btn.textContent = 'Submit application';
+    appErr('Something went wrong. Please try again.');
+  };
+  apiPostSignup({
+    firstName: firstName, phone: phone, email: email, town: town,
+    children: kids, notes: val('fNotes'), receive: receive, photo: photo, bagAck: true
+  }, onSignOk, onSignFail);
+}
+
+function sendGiftCard(){
+  var name = document.getElementById('gName').value.trim();
+  var email = document.getElementById('gEmail').value.trim();
+  var store = document.getElementById('gStore').value.trim();
+  var amount = document.getElementById('gAmount').value.trim();
+  var err = document.getElementById('gErr');
+  if(!name){ err.textContent = 'Please enter your name.'; err.style.display='block'; return; }
+  if(!validEmail(email)){ err.textContent = 'Please enter a valid email.'; err.style.display='block'; return; }
+  if(!store){ err.textContent = 'Please enter the store.'; err.style.display='block'; return; }
+  if(!amount){ err.textContent = 'Please enter the amount.'; err.style.display='block'; return; }
+  err.style.display='none';
+  var btn = document.getElementById('gSubmit'); btn.disabled = true; btn.textContent = 'Sending…';
+  apiGet('giftcard', {name: name, email: email, store: store, amount: amount}, function(r){
+    btn.disabled = false; btn.textContent = 'Pledge card';
+    closeModals();
+    document.getElementById('doneText').textContent = 'Thank you! Drop the physical card off at our location above and we\'ll put it to work.';
+    document.getElementById('doneModal').classList.add('show');
+  }, function(){
+    btn.disabled = false; btn.textContent = 'Pledge card';
+    err.textContent = 'Something went wrong. Please try again.';
+    err.style.display = 'block';
+  });
+}
+
+document.querySelectorAll('.modal-bg').forEach(function(m){
+  m.addEventListener('click', function(e){ if(e.target === m) closeModals(); });
+});
+function openHelp(){
+  var subject = encodeURIComponent('Gift drive help request');
+  var body = encodeURIComponent('Hi Fall River Cares,\n\nI need help with:\n\n(adopting, shopping, drop-off, or fixing my signup \u2014 just describe it here)\n\nName:\nFamily # (donors only):\nPhone (optional):');
+  window.location.href = 'mailto:Fallrivercaresinc@gmail.com?subject=' + subject + '&body=' + body;
+}
+
+load();
+</script>
+<button id="helpFab" onclick="openHelp()">&#10067; Need help?</button>
+</body>
+</html>
