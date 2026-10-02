@@ -115,7 +115,7 @@
       <label>Email (optional)</label><input id="fEmail" type="email" autocomplete="email">
       <label>What town do you live in? *</label>
       <input id="fTown" type="text" autocomplete="address-level2" placeholder="Your town">
-      <div class="hint">Pickup will be at the RMV parking lot, 1794 N Main St, Fall River, MA. You are welcome to sign up from any town as long as you can get there for pickup.</div>
+      <div class="hint">Pickup will be at the RMV parking lot, 1794 N Main St, Fall River, MA. Families from any town may sign up for pickup. Delivery is only available in Fall River, Swansea, Somerset, and Dartmouth for families without reliable transportation.</div>
       <label>How many children are you signing up? *</label>
       <select id="fKids" onchange="renderKidBlocks()">
         <option value="">Choose…</option>
@@ -128,9 +128,9 @@
       <select id="fReceive">
         <option value="">Choose…</option>
         <option value="pickup">I will pick up at the drop-off location (preferred)</option>
-        <option value="delivery">I need delivery — I do not have reliable transportation</option>
+        <option value="delivery">I need delivery — Fall River, Swansea, Somerset, or Dartmouth only</option>
       </select>
-      <div class="hint">Pickup is preferred — it helps us help more families.</div>
+      <div class="hint">Pickup is preferred. Delivery is only available in Fall River, Swansea, Somerset, and Dartmouth for families without reliable transportation.</div>
       <label>Can we take photos when you receive your gifts? *</label>
       <select id="fPhoto">
         <option value="">Choose…</option>
@@ -350,6 +350,10 @@ function closeModals(){
   document.querySelectorAll('.modal-bg').forEach(function(m){ m.classList.remove('show'); });
 }
 function validEmail(e){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
+function deliveryTownOk(town){
+  var t = ' ' + String(town || '').toLowerCase().replace(/[^a-z]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+  return t.indexOf(' fall river ') > -1 || t.indexOf(' swansea ') > -1 || t.indexOf(' somerset ') > -1 || t.indexOf(' dartmouth ') > -1;
+}
 
 function sendClaim(){
   var name = document.getElementById('aName').value.trim();
@@ -437,6 +441,8 @@ function sendApplication(){
   if(!phone){ appErr('Please enter your phone number.'); return; }
   if(email && !validEmail(email)){ appErr('Please enter a valid email, or leave it blank.'); return; }
   if(!town){ appErr('Please enter your town.'); return; }
+  var receiveChoice = document.getElementById('fReceive').value;
+  if(receiveChoice === 'delivery' && !deliveryTownOk(town)){ appErr('Sorry — delivery is only available in Fall River, Swansea, Somerset, and Dartmouth. Please choose pickup at the RMV parking lot in Fall River, or email Fallrivercaresinc@gmail.com for help.'); return; }
   if(!n){ appErr('Please choose how many children you are signing up.'); return; }
   var kids = [];
   for(var i = 1; i <= n; i++){
