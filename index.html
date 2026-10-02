@@ -112,7 +112,8 @@
     <div class="field">
       <label>Your first name *</label><input id="fName" autocomplete="given-name">
       <label>Best phone number to reach you *</label><input id="fPhone" type="tel" autocomplete="tel">
-      <label>Email (optional)</label><input id="fEmail" type="email" autocomplete="email">
+      <label>Email *</label><input id="fEmail" type="email" autocomplete="email">
+      <div class="hint">Required — we will email your confirmation here. Please check your inbox and spam folder.</div>
       <label>What town do you live in? *</label>
       <input id="fTown" type="text" autocomplete="address-level2" placeholder="Your town">
       <div class="hint">Pickup will be at the RMV parking lot, 1794 N Main St, Fall River, MA. Families from any town may sign up for pickup. Delivery is only available in Fall River, Swansea, Somerset, and Dartmouth for families without reliable transportation.</div>
@@ -442,7 +443,8 @@ function sendApplication(){
   var n = parseInt(document.getElementById('fKids').value, 10) || 0;
   if(!firstName){ appErr('Please enter your first name.'); return; }
   if(!phone){ appErr('Please enter your phone number.'); return; }
-  if(email && !validEmail(email)){ appErr('Please enter a valid email, or leave it blank.'); return; }
+  if(!email){ appErr('Please enter your email so we can send your confirmation.'); return; }
+  if(!validEmail(email)){ appErr('Please enter a valid email so we can send your confirmation.'); return; }
   if(!town){ appErr('Please enter your town.'); return; }
   var receiveChoice = document.getElementById('fReceive').value;
   if(receiveChoice === 'delivery' && !deliveryTownOk(town)){ appErr('Sorry — delivery is only available in Fall River, Swansea, Somerset, and Dartmouth. Please choose pickup at the RMV parking lot in Fall River, or email Fallrivercaresinc@gmail.com for help.'); return; }
@@ -469,8 +471,8 @@ function sendApplication(){
     if(r && r.ok){
       var d = document.getElementById('fDone');
       d.innerHTML = (r.duplicate)
-        ? '<strong>Thank you!</strong> We already have your application, so there is no need to submit again. Our coordinator will review it and be in touch.'
-        : '<strong>Thank you!</strong> Your application was received. Our coordinator will review it and be in touch.';
+        ? '<strong>Thank you!</strong> We already have your application, so there is no need to submit again. Please check your email for the confirmation from your first submission.'
+        : '<strong>Thank you!</strong> Your application was received. Please check your email for your confirmation. Our coordinator will review it and be in touch.';
       d.style.display = 'block';
       ['fName','fPhone','fEmail','fNotes'].forEach(function(id){ document.getElementById(id).value = ''; });
       document.getElementById('fTown').value = '';
@@ -482,6 +484,8 @@ function sendApplication(){
       d.scrollIntoView();
     } else if(r && r.error === 'delivery_area') {
       appErr('Sorry — delivery is only available in Fall River, Swansea, Somerset, and Dartmouth. Please choose pickup at the RMV parking lot in Fall River, or email Fallrivercaresinc@gmail.com for help.');
+    } else if(r && r.error === 'email_required') {
+      appErr('Please enter your email so we can send your confirmation.');
     } else {
       appErr('Something went wrong. Please check your connection and try again. If you already clicked Submit once, wait a minute before trying again.');
     }
@@ -491,6 +495,8 @@ function sendApplication(){
     btn.disabled = false; btn.textContent = 'Submit application';
     if(r && r.error === 'delivery_area'){
       appErr('Sorry — delivery is only available in Fall River, Swansea, Somerset, and Dartmouth. Please choose pickup at the RMV parking lot in Fall River, or email Fallrivercaresinc@gmail.com for help.');
+    } else if(r && r.error === 'email_required') {
+      appErr('Please enter your email so we can send your confirmation.');
     } else {
       appErr('Something went wrong. Please check your connection and try again. If you already clicked Submit once, wait a minute before trying again.');
     }
@@ -498,7 +504,7 @@ function sendApplication(){
   var onSignUnknown = function(){
     btn.disabled = true; btn.textContent = 'Please do not submit again yet';
     var d = document.getElementById('fDone');
-    d.innerHTML = '<strong>Your application may have gone through.</strong> We could not confirm it on this screen. Please do not submit again yet — our coordinator will contact you. If you need to check, email Fallrivercaresinc@gmail.com.';
+    d.innerHTML = '<strong>Your application may have gone through.</strong> Please check your email for a confirmation before submitting again. Do not submit again yet — our coordinator will contact you. If you need to check, email Fallrivercaresinc@gmail.com.';
     d.style.display = 'block';
     d.scrollIntoView();
   };
