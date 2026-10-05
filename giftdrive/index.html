@@ -83,7 +83,7 @@
     <div class="steps">
       <div class="step"><div class="n">1</div><div><strong>Pick a family</strong> below that fits what you'd like to give.</div></div>
       <div class="step"><div class="n">2</div><div><strong>Tap Adopt</strong> and leave your name and email. You'll see the full wish list right away.</div></div>
-      <div class="step"><div class="n">3</div><div><strong>Drop off</strong> your wrapped gifts at our location below. Families pick up from there.</div></div>
+      <div class="step"><div class="n">3</div><div><strong>Drop off</strong> your wrapped gifts at our location below by <strong>December 15th</strong>. Families pick up from there.</div></div>
     </div>
     <p style="margin-top:.8rem"><em>Gift ideas are just suggestions to help you shop — give what fits your budget and your heart.</em></p>
   </div>
@@ -383,7 +383,8 @@ function sendClaim(){
       } else {
         html += '<p style="margin-top:.6rem">Our coordinator will be in touch with the full wish list shortly.</p>';
       }
-      html += '<p style="margin-top:.8rem">Done shopping? Email us at <a href="mailto:' + esc(contactEmail) + '">' + esc(contactEmail) + '</a> to set up your drop-off time.</p>';
+      html += '<p style="margin-top:.8rem">Done shopping? Email us at <a href="mailto:' + esc(contactEmail) + '">' + esc(contactEmail) + '</a> to set up your drop-off time.</p>'
+        + '<p style="margin-top:.6rem"><strong>Please drop off by December 15th</strong> so we can get everything to the families before Christmas.</p>';
       document.getElementById('doneText').innerHTML = html;
       document.getElementById('doneModal').classList.add('show');
       load();
